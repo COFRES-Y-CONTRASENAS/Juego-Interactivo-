@@ -7,7 +7,7 @@
 from password import Password
 from cofre import Cofre
 from exceptions import (LongitudInvalidaError,TipoDatoInvalidoError,
-                        PasswordInvalidaError)
+                        PasswordInvalidoError)
 
 
 
@@ -26,7 +26,7 @@ acumular puntos. ¡Vamos a jugar!
     def __init__(self):
         
         self.puntaje = 0
-        self.rondas_jugadas = 0
+        self.ronda = 0
         self.historial = []  # Lista donde se almacenan las rondas jugadas
         
     def _separador(self):
@@ -79,7 +79,7 @@ acumular puntos. ¡Vamos a jugar!
             else:
                 # Contraseña inválida (caso de seguridad; rara vez ocurre
                 # con el generador actual, pero se maneja por robustez)
-                raise PasswordInvalidaError(
+                raise PasswordInvalidoError(
                     "La contraseña generada no cumple los requisitos."
                 )
  
@@ -93,13 +93,13 @@ acumular puntos. ¡Vamos a jugar!
  
         except LongitudInvalidaError as e:
             # El usuario ingresó una longitud menor a 8
-            print(f"\n ❌Longitud inválida: {e}")
+            print(f"\n ❌ Longitud inválida: {e}")
             cofre = Cofre.abrir_maldito()
             self.puntaje += cofre.puntos
             resultado = f"❌ Longitud inválida → {cofre}"
             print(f"  {cofre}")
  
-        except PasswordInvalidaError as e:
+        except PasswordInvalidoError as e:
             # La contraseña no cumple los requisitos
             print(f"\n  Contraseña inválida: {e}")
             cofre = Cofre.abrir_maldito()

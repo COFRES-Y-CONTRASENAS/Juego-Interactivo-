@@ -7,7 +7,7 @@
 
 import random
 import string
-from exceptions import PasswordInvalidaError
+from exceptions import PasswordInvalidoError
 
 #Clase que se encarga de generar i validar contraseñas
 class Password:
@@ -37,25 +37,29 @@ class Password:
         
         # se verifica que la contraseña tenga los caracteres suficientes únicos.
         if self.longitud > len(pool):
-            raise PasswordInvalidaError(
+            raise PasswordInvalidoError(
                 f"No es posible generar una contraseña de {self.longitud} caracteres "
                 f"sin repetición. Máximo permitido con caracteres únicos: {len(pool)}."
             )
         
         # Se selecciona un caracter obligatorio de cada grupo.   
-        mayusculas = random.choice(string.ascii_uppercase)
-        minusculas = random.choice(string.ascii_lowercase)
-        numero = random.choice(string.ascii_digits)
-        especial = random.choice(self.ESPECIALES)
+        mayus = random.choice(string.ascii_uppercase)
+        minus = random.choice(string.ascii_lowercase)
+        num = random.choice(string.digits)
+        esp = random.choice(self.ESPECIALES)
         
-        obligatorios = [mayusculas, minusculas, numero, especial]
+        obligatorios = [mayus, minus, num, esp]
         
         # Elimina del pool los caracteres ya seleccionados
         pool_restante = [c for c in pool if c not in obligatorios]
- 
-        # Completa la longitud con caracteres únicos adicionales
-        complemento = random.sample(pool_restante, self.longitud - 4)
+    
+        try:
+            complemento = random.sample(pool_restante, self.longitud - 4)
+        except ValueError:
+            raise PasswordInvalidoError("Longitud demasiado grande")
         
+         
+              
         # Une y mezcla los caracteres
         result = obligatorios + complemento
         random.shuffle(result)
@@ -65,11 +69,14 @@ class Password:
 
     
     # Se verifican todas las reglas establecidas para una contraseña correcta
-    def validar(self) -> bool:
+    def validar(self) -> tuple[bool, str]:
+    
+        if not self.valor:
+            return False, "No se ha generado contraseña"
        
         # Verificar longitud mínima.
-        if len(self.valor) < 8:
-            return False
+        if len(self.valor) != self.longitud:
+            return False,
         
         # Verificar al menos una mayuscula.
         if not any(c.isupper() for c in self.valor):
@@ -84,7 +91,7 @@ class Password:
             return False
         
         # Verificar al menos un caracter especial.
-        if not any(c in "¿¡?=)(/*+-%&$#!" for c in self.valor):
+        if not any(c in self.ESPECIALES for c in self.valor):
             return False
         
         # verifica que no haya caracteres repetidos

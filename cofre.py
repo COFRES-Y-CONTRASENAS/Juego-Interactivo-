@@ -10,10 +10,10 @@ import random
 class Cofre:
     
     TIPOS = {
-        "Común": {"puntos": 10},
-        "Raro": {"puntos": 25},
+        "Común":      {"puntos": 10},
+        "Raro":       {"puntos": 25},
         "Legendario": {"puntos": 50},
-        "Maldito": {"puntos": -20}
+        "Maldito":    {"puntos": -20}
     }
     # se inicializa un cofre con el tipo indicado
     def __init__(self, tipo: str):
@@ -22,14 +22,15 @@ class Cofre:
             raise ValueError((f"Tipo de cofre desconocido: '{tipo}'. "
                             f"Tipos válidos: {list(self.TIPOS.keys())}"))
             
-            self.tipo = tipo
-            self.puntos = self.TIPOS [tipo]["puntos"]
-        
+        self.tipo = tipo
+        self.puntos = self.TIPOS [tipo]["puntos"]
+    
+    @classmethod 
     # Método para abrir el cofre y obtener puntos
     def abrir_aleatorio(cls) -> "Cofre":
         
         tipos_positivos = ["Común","Raro","Legendario"]
-        tipo_elegido = random.choice(tipos_positivos, k =1) [0]
+        tipo_elegido = random.choice(tipos_positivos)
         return cls(tipo_elegido)
     
     
@@ -42,7 +43,7 @@ class Cofre:
     # Representación en texto  
     def __str__(self) -> str:
         signo = "+" if self.puntos >= 0 else ""
-        return f"{self.emoji} Cofre {self.tipo} ({signo}{self.puntos} puntos)"
+        return f"Cofre {self.tipo} ({signo}{self.puntos} puntos)"
  
         
         
