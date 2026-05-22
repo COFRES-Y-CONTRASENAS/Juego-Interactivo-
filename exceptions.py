@@ -6,47 +6,29 @@
 
 
 #---------------------------------------
-# EXCEPCION BASE 
-# todas las demas herendan de esta clase
+# EXCEPCIONES PERSONALIZADAS
+# Estas excepciones se utilizan para manejar errores específicos del juego
 #---------------------------------------
 
 class CazadorException(Exception):
     """ Excepcion base para el juego cazador de contraseñas. """
     pass    
 
-#---------------------------------------
-# EXCEPCION DE CONTRASEÑA 
-# se lanza cuando el jugador ingresa una contraseña incorrecta
-#---------------------------------------
+class LongitudInvalidaError(CazadorException):
+    """ Errores relacionados con longitud de contraseña. """
+    def __init__(self, mensaje = "La longitud de la contraseña debe ser minimo de 8 caracteres."):
+        self.mensaje = mensaje
+        super().__init__(self.mensaje)
 
-class ContraseñaIncorrecta(CazadorException):
-    """ Errores relacionados con contraseñas incorrectas. """
-    pass
+class TipoDatoInvalidoError(CazadorException):
+    """ Error cuando el tipo de dato ingresado es inválido. """
+    def __init__(self, mensaje = "Ingresa un número válido."):
+        self.mensaje = mensaje
+        super().__init__(self.mensaje)
 
-class ContraseñaMuyCorta(ContraseñaIncorrecta):
-    """ Error cuando la contraseña ingresada es demasiado corta. """
-    pass
+class ContraseñaInvalidaError(CazadorException):
+    """ Error cuando la contraseña ingresada no cumple con los requisitos. """
+    def __init__(self, mensaje = "La contraseña generada no cumple todas las reglas."):
+        self.mensaje = mensaje
+        super().__init__(self.mensaje)
 
-class ContraseñaSinMayuscula(ContraseñaIncorrecta):
-    """ Error cuando la contraseña ingresada no contiene mayúsculas. """
-    pass
-
-class ContraseñaSinMinuscula(ContraseñaIncorrecta):
-    """ Error cuando la contraseña ingresada no contiene minúsculas. """
-    pass    
-
-class ContraseñaSinNumero(ContraseñaIncorrecta):
-    """ Error cuando la contraseña ingresada no contiene números. """
-    pass
-
-class ContraseñaSinCaracterEspecial(ContraseñaIncorrecta):
-    """ Error cuando la contraseña ingresada no contiene caracteres especiales. """
-    pass
-
-class ContraseñaConRepeticion(ContraseñaIncorrecta):
-    """ Error cuando la contraseña tiene caracteres repetidos. """
-    pass
-
-#---------------------------------------
-# -
-#---------------------------------------
