@@ -16,23 +16,15 @@ class Cofre:
         "Maldito":    {"puntos": -20}
     }
     # se inicializa un cofre con el tipo indicado
-    def __init__(self, tipo: str):
+    def __init__(self, tipo):
         
         if tipo not in self.TIPOS:
-            raise ValueError((f"Tipo de cofre desconocido: '{tipo}'. "
+            raise ValueError((f"Tipo de cofre invalido. "
                             f"Tipos válidos: {list(self.TIPOS.keys())}"))
             
         self.tipo = tipo
         self.puntos = self.TIPOS [tipo]["puntos"]
-    
-    @classmethod 
-    # Método para abrir el cofre y obtener puntos
-    def abrir_aleatorio(cls) -> "Cofre":
-        
-        tipos_positivos = ["Común","Raro","Legendario"]
-        tipo_elegido = random.choice(tipos_positivos)
-        return cls(tipo_elegido)
-    
+   
     
     @classmethod
     # La función abrir_maldito crea y retorna siempre el cofre maldito disminuyendo
@@ -44,7 +36,7 @@ class Cofre:
     def __str__(self) -> str:
         signo = "+" if self.puntos >= 0 else ""
         return f"Cofre {self.tipo} ({signo}{self.puntos} puntos)"
- 
+
         
         
         

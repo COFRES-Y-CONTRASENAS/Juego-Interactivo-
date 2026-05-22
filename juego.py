@@ -53,75 +53,62 @@ acumular puntos. ¡Vamos a jugar!
         return longitud
     
     def _jugar_ronda(self):
-        
         self.ronda += 1
         self._separador()
         self._mostrar_estado()
-        print()
-        
-        resultado = ""
-        
-        
+
+        resultado=""
         try:
             longitud = self._pedir_longitud()
-            password = Password(longitud)
-            clave = password.generar()
-            print(f"\n  Contraseña generada: {clave}")
- 
-            # ── 3. Validar y abrir cofre ──
-            if password.validar():
-                # Contraseña válida → cofre positivo aleatorio
-                cofre = Cofre.abrir_aleatorio()
-                self.puntaje += cofre.puntos
-                resultado = f"✅ Válida → {cofre}"
-                print(f"\n  ✅ ¡Contraseña VÁLIDA!")
-                print(f"  {cofre}")
+
+            pwd = input(
+                "\nEscribe tu contraseña: ")
+
+            password = Password( longitud,pwd)
+            password.validar()
+
+            # Determinar cofre según longitud
+
+            if longitud == 8:
+                cofre = Cofre("Común")
+
+            elif longitud == 12:
+                cofre = Cofre("Raro")
+
+            elif longitud >= 14:
+                cofre = Cofre("Legendario")
+
             else:
-                # Contraseña inválida (caso de seguridad; rara vez ocurre
-                # con el generador actual, pero se maneja por robustez)
-                raise PasswordInvalidoError(
-                    "La contraseña generada no cumple los requisitos."
-                )
- 
-        except TipoDatoInvalidoError as e:
-            # El usuario escribió algo que no es un número
-            print(f"\n   Error de entrada: {e}")
-            cofre = Cofre.abrir_maldito()
+                cofre = Cofre("Común")
+
             self.puntaje += cofre.puntos
-            resultado = f"❌ Entrada inválida → {cofre}"
-            print(f"  {cofre}")
- 
-        except LongitudInvalidaError as e:
-            # El usuario ingresó una longitud menor a 8
-            print(f"\n ❌ Longitud inválida: {e}")
+
+            resultado=f"✅ Correcta → {cofre}"
+
+            print("\n✅ Contraseña válida")
+            print(cofre)
+
+        except (TipoDatoInvalidoError,LongitudInvalidaError,
+                PasswordInvalidoError) as e:
+            
+            print(f"\n❌ {e}")
+
             cofre = Cofre.abrir_maldito()
+
             self.puntaje += cofre.puntos
-            resultado = f"❌ Longitud inválida → {cofre}"
-            print(f"  {cofre}")
- 
-        except PasswordInvalidoError as e:
-            # La contraseña no cumple los requisitos
-            print(f"\n  Contraseña inválida: {e}")
-            cofre = Cofre.abrir_maldito()
-            self.puntaje += cofre.puntos
-            resultado = f"❌ Contraseña inválida → {cofre}"
-            print(f"  {cofre}")
- 
-        except Exception as e:
-            # Cualquier otro error inesperado
-            print(f"\n  Error inesperado: {e}")
-            cofre = Cofre.abrir_maldito()
-            self.puntaje += cofre.puntos
-            resultado = f"❌ Error inesperado → {cofre}"
-            print(f"  {cofre}")
- 
-        # ── 5. Guardar en historial y mostrar puntaje ──
+
+            resultado=f"❌ Inválida → {cofre}"
+
+            print(cofre)
+
+
         self.historial.append({
-            "ronda":     self.ronda,
-            "resultado": resultado,
-            "puntaje":   self.puntaje,
-        })
-        print(f"\n  Puntaje actual: {self.puntaje}")
+            "ronda":self.ronda,
+            "resultado":resultado,
+            "puntaje":self.puntaje
+            })
+
+        print(f"\nPuntaje actual: {self.puntaje}")
  
     # ── Menú y vistas secundarias ─────────────────────────
  
@@ -138,14 +125,18 @@ acumular puntos. ¡Vamos a jugar!
     def _ver_historial(self):
         """Muestra el historial completo de todas las rondas jugadas."""
         self._separador()
+        
         if not self.historial:
             print("\n  No hay rondas jugadas aún.")
             return
+        
         print("\n  HISTORIAL DE RONDAS\n")
-        print(f"  {'Ronda':<8} {'Resultado':<42} {'Puntaje'}")
+        print(f"  {'Ronda':<8} | {'Resultado de contraseña':<42} | {'Puntaje'}")
         print("  " + "-" * 58)
         for h in self.historial:
-            print(f"  {h['ronda']:<8} {h['resultado']:<42} {h['puntaje']}")
+            print(f"  {h['ronda']:<8} | {h['resultado']:<42}| {h['puntaje']}")
+ 
+ 
  
     def _mostrar_resultado_final(self):
         """Muestra la pantalla de despedida con el puntaje final y una calificación."""

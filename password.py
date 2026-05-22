@@ -5,101 +5,61 @@
 # requisitos establecidos.
 #----------------------------------------------------
 
-import random
-import string
 from exceptions import PasswordInvalidoError
 
-#Clase que se encarga de generar i validar contraseñas
 class Password:
-    
-    # Caracteres especiales validos 
+
     ESPECIALES = "¿¡?=)(/*+-%&$#!"
-    
-    # Inicializa la contraseña con la longitud solicitada.
-    def __init__(self, longitud: int):
-        
+
+    def __init__(self, longitud:int, valor: str):
         self.longitud = longitud
-        self.valor = ""    # Se llena al llamar a la funcion generar.
-                
-    # Método para generar una contraseña aleatoria.
-    def generar(self) -> str :
-        
-        # Se construye un conjunto de caracteres únicos disponibles.
-        pool = list(
-            string.ascii_uppercase +      # Letras mayusculas
-            string.ascii_lowercase +      # Letras minusculas
-            string.digits +               # Números (0-9)
-            self.ESPECIALES               # Caracteres especiales
-        )
-        
-        # Elimina los duplicados
-        pool= list(dict.fromkeys(pool))
-        
-        # se verifica que la contraseña tenga los caracteres suficientes únicos.
-        if self.longitud > len(pool):
+        self.valor = valor
+
+
+    def validar(self):
+
+        if not self.valor:
             raise PasswordInvalidoError(
-                f"No es posible generar una contraseña de {self.longitud} caracteres "
-                f"sin repetición. Máximo permitido con caracteres únicos: {len(pool)}."
+                "No escribiste ninguna contraseña"
             )
         
-        # Se selecciona un caracter obligatorio de cada grupo.   
-        mayus = random.choice(string.ascii_uppercase)
-        minus = random.choice(string.ascii_lowercase)
-        num = random.choice(string.digits)
-        esp = random.choice(self.ESPECIALES)
-        
-        obligatorios = [mayus, minus, num, esp]
-        
-        # Elimina del pool los caracteres ya seleccionados
-        pool_restante = [c for c in pool if c not in obligatorios]
-    
-        try:
-            complemento = random.sample(pool_restante, self.longitud - 4)
-        except ValueError:
-            raise PasswordInvalidoError("Longitud demasiado grande")
-        
-         
-              
-        # Une y mezcla los caracteres
-        result = obligatorios + complemento
-        random.shuffle(result)
-        
-        self.valor = "".join(result)
-        return self.valor
-
-    
-    # Se verifican todas las reglas establecidas para una contraseña correcta
-    def validar(self) -> tuple[bool, str]:
-    
-        if not self.valor:
-            return False, "No se ha generado contraseña"
-       
         # Verificar longitud mínima.
         if len(self.valor) != self.longitud:
-            return False,
-        
-        # Verificar al menos una mayuscula.
+            raise PasswordInvalidoError(
+                f"La contraseña debe tener exactamente {self.longitud} caracteres"
+            )
+            
+        # Verificar al menos una mayuscula (A-Z).
         if not any(c.isupper() for c in self.valor):
-            return False
-        
-        # Verificar al menos una minuscula.     
+            raise PasswordInvalidoError(
+                "Debe tener al menos una mayúscula"
+            )
+            
+        # Verificar al menos una minuscula (a-z).
         if not any(c.islower() for c in self.valor):
-            return False
-        
-        # Verificar al menos un número.
+            raise PasswordInvalidoError(
+                "Debe tener al menos una minúscula"
+            )
+
+        # Verificar al menos un digito (0-9)
         if not any(c.isdigit() for c in self.valor):
-            return False
-        
-        # Verificar al menos un caracter especial.
+            raise PasswordInvalidoError(
+                "Debe tener al menos un número"
+            )
+
+        # Verificar al menos un caracter especial (¿¡?=)(/*+-%&$#!).
         if not any(c in self.ESPECIALES for c in self.valor):
-            return False
-        
-        # verifica que no haya caracteres repetidos
-        if len(set(self.valor)) != len(self.valor):   
-            return False
-        
+            raise PasswordInvalidoError(
+                "Debe tener un carácter especial"
+            )
+        # Verificar que la conraseña no tenga caracteres repetidos
+        if len(set(self.valor)) != len(self.valor):
+            raise PasswordInvalidoError(
+                "No se permiten caracteres repetidos"
+            )
+
         return True
-    
+
    
        
     

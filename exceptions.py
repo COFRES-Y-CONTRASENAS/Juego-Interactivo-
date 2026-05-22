@@ -14,8 +14,8 @@ class LongitudInvalidaError(Exception):
     """ Errores relacionados con longitud de contraseña. """
     pass
 class TipoDatoInvalidoError(Exception):
-    def __init__(self, mensaje="❌ La longitud debe ser mínimo 8 caracteres."):
-        super().__init__(mensaje)
+    """ Error cuando el tipo de dato ingresado es inválido. """
+    pass
 
 class PasswordInvalidoError(Exception):
     """ Error cuando la contraseña ingresada no cumple con los requisitos. """
