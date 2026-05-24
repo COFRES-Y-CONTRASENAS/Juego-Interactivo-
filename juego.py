@@ -37,7 +37,7 @@ acumular puntos. ¡Vamos a jugar!
          
      # Solicitar longitud con validación 
     def _pedir_longitud(self) -> int:
-        entrada = input("\n Ingresa la longitud de la contraseña (mínimo 8): ").strip()
+        entrada = input("\n Ingresa la cantidad de caracteres de la contraseña (mínimo 8): ").strip()
         
         # Validar que sea un entero positivo
         if not entrada.isdigit():
@@ -104,12 +104,130 @@ acumular puntos. ¡Vamos a jugar!
 
         self.historial.append({
             "ronda":self.ronda,
+            "modo": "Generar",
             "resultado":resultado,
             "puntaje":self.puntaje
             })
 
         print(f"\nPuntaje actual: {self.puntaje}")
- 
+        
+        
+    def _descifrar_password(self):
+        self._separador()
+        print("""\nDESCIFRAR CONTRASEÑA""")
+
+        longitud = 8
+
+        password = Password(longitud)
+
+        pwd_secreto=password.generar()
+
+        intentos=7
+        
+        resultado = ""
+        
+        self.ronda += 1
+        # estado visible tipo ahorcado
+        progress = ["_"] * longitud
+        
+        print(f"\nPista inicial:")
+        print(f"✓ Longitud: {longitud}")
+        print("✓ Tiene mayúsculas")
+        print("✓ Tiene minúsculas")
+        print("✓ Tiene números")
+        print("✓ Tiene caracteres especiales '¿¡?=)(/*+-%&$#!' ")
+
+        while intentos > 0:
+            
+            print(f"\nPista actual: ")
+            print(" ".join(progress))
+            
+            print(f"\nIntentos restantes: {intentos}")
+            intento=input("\nAdivina la contraseña: ")
+
+            if intento == pwd_secreto:
+                
+                puntos_ganados = 50
+                self.puntaje += puntos_ganados
+                resultado = (f"Descifrada (+{puntos_ganados})")
+                print("\n🎉 ¡Correcto!")
+                print("✅Has descifrado la contraseña")
+                print(f"\nGanaste {puntos_ganados} puntos.")
+                print(f"Puntaje actual: {self.puntaje}")
+                
+                self.historial.append({
+                    "ronda" : self.ronda,
+                    "modo" : "Descifrar",
+                    "resultado": resultado,
+                    "puntaje": self.puntaje})
+                
+                return
+                        
+            # uscar caracteres existentes
+            for c in intento: 
+                if c in pwd_secreto:
+                    posicion = pwd_secreto.index(c)
+                    
+                    progress[posicion] = c
+                
+
+            intentos-=1
+
+            print("\n❌ Incorrecto")
+
+        print("\nHas agotado tus intentos")
+
+        print(f"Contraseña correcta: {pwd_secreto}")
+        
+        cofre = Cofre.abrir_maldito()
+        self.puntaje += cofre.puntos
+        resultado = f"❌ Falló ({cofre})"
+        print(f"Pntaje total: {self.puntaje}")
+        
+        self.historial.append({
+            "ronda": self.ronda,
+            "modo":"Descifrar",
+            "resultado": resultado,
+            "puntaje": self.puntaje})
+       
+               
+    def _generar_pistas(self, secreta, intento):
+        posiciones=[]
+
+        correctos=0
+
+        for i in range(len(secreta)):
+            if i < len(intento):
+                if intento[i]==secreta[i]:
+                    posiciones.append(intento[i])
+
+                    correctos +=1
+
+                else:
+                    posiciones.append("_")
+
+        return correctos, " ".join(posiciones)
+        
+   
+    def _generar_pistas(self, secreta, intento):
+        posiciones=[]
+
+        correctos=0
+
+        for i in range(len(secreta)):
+            if i < len(intento):
+                if intento[i]==secreta[i]:
+
+                    posiciones.append(intento[i])
+
+                    correctos +=1
+
+                else:
+                    posiciones.append("_")
+
+        return correctos, " ".join(posiciones)
+        
+        
     # ── Menú y vistas secundarias ─────────────────────────
  
     def _mostrar_menu(self):
@@ -118,8 +236,9 @@ acumular puntos. ¡Vamos a jugar!
         print("\n  │      MENÚ PRINCIPAL         │")
      
         print("  │  1. Generar contraseña      │")
-        print("  │  2. Ver historial           │")
-        print("  │  3. Salir del juego         │")
+        print("  │  2. Decifrar contraseña     │")
+        print("  │  3. Ver historial           │")
+        print("  │  4. Salir del juego         │")
      
  
     def _ver_historial(self):
@@ -128,13 +247,19 @@ acumular puntos. ¡Vamos a jugar!
         
         if not self.historial:
             print("\n  No hay rondas jugadas aún.")
-            return
+            return 
         
         print("\n  HISTORIAL DE RONDAS\n")
-        print(f"  {'Ronda':<8} | {'Resultado de contraseña':<42} | {'Puntaje'}")
-        print("  " + "-" * 58)
+        print(f"  {'Ronda':<8} | {'Modo':<15} | {'Resultado de contraseña':<32} | {'Puntaje'}")
+        print("  " + "-" * 70)
+        
         for h in self.historial:
-            print(f"  {h['ronda']:<8} | {h['resultado']:<42}| {h['puntaje']}")
+            ronda = h.get("ronda","-")
+            modo = h.get("modo","Generar")
+            resultado = h.get("resultado","Sin resultado")
+            puntaje = h.get("Puntaje",0)
+            
+            print(f"  {h['ronda']:<8} | {h['modo']:<15} | {h['resultado']:<32} | {h['puntaje']}")
  
  
  
@@ -146,7 +271,7 @@ acumular puntos. ¡Vamos a jugar!
         print(f"  Puntaje final  : {self.puntaje}")
  
         # Calificación según puntaje final
-        if self.puntaje >= 100:
+        if self.puntaje >= 10:
             print("\n  ¡Eres un MAESTRO Cazador de Contraseñas!")
         elif self.puntaje >= 50:
             print("\n  ¡Buen trabajo, Cazador!")
@@ -178,18 +303,21 @@ acumular puntos. ¡Vamos a jugar!
  
         while jugando:
             self._mostrar_menu()
-            opcion = input("\n  Elige una opción (1/2/3): ").strip()
+            opcion = input("\n  Elige una opción (1/2/3/4): ").strip()
  
             if opcion == "1":
                 self._jugar_ronda()
- 
+            
             elif opcion == "2":
-                self._ver_historial()
+                self._descifrar_password()
  
             elif opcion == "3":
+                self._ver_historial()
+ 
+            elif opcion == "4":
                 jugando = False
  
             else:
-                print("\n   Opción no válida. Por favor elige 1, 2 o 3.")
+                print("\n   Opción no válida. Por favor elige 1, 2, 3 o 4.")
  
         self._mostrar_resultado_final()

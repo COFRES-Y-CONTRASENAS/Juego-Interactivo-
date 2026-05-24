@@ -4,17 +4,49 @@
 # aleatorias y validar que la contraseña cumpla todos los 
 # requisitos establecidos.
 #----------------------------------------------------
-
+import random
+import string
 from exceptions import PasswordInvalidoError
 
 class Password:
 
     ESPECIALES = "¿¡?=)(/*+-%&$#!"
 
-    def __init__(self, longitud:int, valor: str):
+    def __init__(self, longitud:int, valor: str=""):
         self.longitud = longitud
         self.valor = valor
 
+
+    def generar(self):
+        mayus=random.choice(string.ascii_uppercase)
+
+        minus=random.choice(string.ascii_lowercase)
+
+        numero=random.choice(string.digits)
+
+        especial=random.choice(self.ESPECIALES)
+
+        obligatorios=[
+            mayus,
+            minus,
+            numero,
+            especial]
+
+        resto=string.ascii_letters + string.digits + self.ESPECIALES
+
+        while len(obligatorios)<self.longitud:
+
+            caracter=random.choice(resto)
+
+            if caracter not in obligatorios:
+
+                obligatorios.append(caracter)
+
+        random.shuffle(obligatorios)
+
+        self.valor="".join(obligatorios)
+
+        return self.valor
 
     def validar(self):
 
@@ -50,7 +82,7 @@ class Password:
         # Verificar al menos un caracter especial (¿¡?=)(/*+-%&$#!).
         if not any(c in self.ESPECIALES for c in self.valor):
             raise PasswordInvalidoError(
-                "Debe tener un carácter especial"
+                "Debe tener un carácter especial ' ¿¡?=)(/*+-%&$#! ' "
             )
         # Verificar que la conraseña no tenga caracteres repetidos
         if len(set(self.valor)) != len(self.valor):
