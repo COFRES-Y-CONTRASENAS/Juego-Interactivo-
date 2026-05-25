@@ -1,107 +1,119 @@
 #----------------------------------------------------
 # ARCHIVO: juego.py 
-# Modulo que cocntiene la clase JuegoCazador, a cual controla el flujo del juego 
-# (menú, rondas, salida). Administra el puntaje acumulado y el historial de rondas
-# y permite al usuario jugar tantas rondas como lo desee. 
+# Este modulo controla el flujo del juego. 
+# Administra los modos de juego, las rondas jugadas, asigna el puntaje del jugador, 
+# guarda el historial de rondas, y permite al usuario jugar tantas rondas como lo desee. 
 #----------------------------------------------------
+
+# importaciones de las clases y metodos de los archivos password.py, cofre.py 
+# y las excepciones personalizadas del archivo exceptions.py.
 from password import Password
 from cofre import Cofre
 from exceptions import (LongitudInvalidaError,TipoDatoInvalidoError,
                         PasswordInvalidoError)
 
-
-
-# Esta clase representa al jugador y permite administrar su progreso
+# Esta clase principal representa al jugador y su progreso.
 class Juego_Cazador:
     
-    # Anuncio de bienvenida al jugador
-    ANUNCIO = """
+    # Anuncio de bienvenida al jugador.
+    BANNER = """
      
     CAZADOR DE CONTRASEÑAS
                  
-El juego consiste en generar contraseñas, abrir cofres y 
-acumular puntos. ¡Vamos a jugar!
+El juego consiste en generar y descifrar contraseñas, abrir 
+cofres y acumular puntos. Si cometes un error perderas tus puntos.
+
+
+¡Vamos a jugar!
     
     """  
+    # Constructor que inicialia las variales de puntaje, ronda y el historial de juego.
     def __init__(self):
         
         self.puntaje = 0
         self.ronda = 0
-        self.historial = []  # Lista donde se almacenan las rondas jugadas
-        
+        self.historial = []  # Lista donde se almacenan las rondas jugadas.
+    
+    # El metodo separado genera una linea docorativa.
     def _separador(self):
-        print("\n" + "─" * 55)
-        
+        print("\n" + "─" * 84)
+    
+    # El metodo mostrar_estado muestra la información del jugador, 
+    # la ronda actual y los puntos acumulados.
     def _mostrar_estado(self):
          print(f"\n  Ronda: {self.ronda}  | Puntaje acumulado: {self.puntaje}")
          
-     # Solicitar longitud con validación 
+     # Este metodo solicita al usuario la longitud de la contraseña.
     def _pedir_longitud(self) -> int:
+        # Variale que recibira la cantidad suministrada por el usuario.
         entrada = input("\n Ingresa la cantidad de caracteres de la contraseña (mínimo 8): ").strip()
         
-        # Validar que sea un entero positivo
+        # Validar que sea un entero positivo.
         if not entrada.isdigit():
             raise TipoDatoInvalidoError( f"'{entrada}' no es un número válido. "
                 "Debes ingresar un entero positivo.")
-    
-        longitud =int(entrada)
+
+        # Asigna el valor ssuministrado por el usuario a la variable longitud.
+        longitud = int(entrada)
         
         # Validar longitud mínima de 8
         if longitud < 8:
             raise LongitudInvalidaError(f"La longitud mínima permitida es 8. Ingresaste: {longitud}.")
 
         return longitud
-    
+    # Este metodo ejecuta el modo Generar contraseña
     def _jugar_ronda(self):
+        # Se incrementa la ronda.
         self.ronda += 1
-        self._separador()
+        self._separador() 
+        print(" GENERA CONTRASEÑAS Y GANA PUNTOS ")
         self._mostrar_estado()
 
         resultado=""
         try:
             longitud = self._pedir_longitud()
-
-            pwd = input(
-                "\nEscribe tu contraseña: ")
-
+            
+            # Se solicita la contraseña al usuario.
+            pwd = input("\nEscribe tu contraseña: ")
+            
+            # se crea un objeto de la clase Password.
             password = Password( longitud,pwd)
             password.validar()
 
-            # Determinar cofre según longitud
-
-            if longitud == 8:
+            # Determinar tipo de cofre según longitud suministrada por el usuario.
+            if 8 <= longitud < 12:
                 cofre = Cofre("Común")
 
-            elif longitud == 12:
+            elif 12 <= longitud < 14:
                 cofre = Cofre("Raro")
 
-            elif longitud >= 14:
+            else: 
                 cofre = Cofre("Legendario")
-
-            else:
-                cofre = Cofre("Común")
-
+                
+            # Se actualizan los puntos 
             self.puntaje += cofre.puntos
 
-            resultado=f"✅ Correcta → {cofre}"
+            resultado = f"✅ Correcta → {cofre}"
 
             print("\n✅ Contraseña válida")
             print(cofre)
-
+        
+        # Se guarda el error en la variable e.
         except (TipoDatoInvalidoError,LongitudInvalidaError,
                 PasswordInvalidoError) as e:
             
+            # Se muestra el error específico que cometió el usuario.
             print(f"\n❌ {e}")
 
+            # Se llama al metodo abrir_maldito para restar los puntos.
             cofre = Cofre.abrir_maldito()
 
             self.puntaje += cofre.puntos
 
-            resultado=f"❌ Inválida → {cofre}"
-
+            resultado = f"❌ Inválida → {cofre}"
             print(cofre)
 
-
+        # Se guarda la información en el historial.
         self.historial.append({
             "ronda":self.ronda,
             "modo": "Generar",
@@ -111,13 +123,15 @@ acumular puntos. ¡Vamos a jugar!
 
         print(f"\nPuntaje actual: {self.puntaje}")
         
-        
+    # Este metodo se encarga del modo de juego Descifrar contraseña
     def _descifrar_password(self):
+        
         self._separador()
         print("""\nDESCIFRAR CONTRASEÑA""")
-
+        # longitud de la contraseña estalecido. Este valor no cambia.
         longitud = 8
-
+        
+        
         password = Password(longitud)
 
         pwd_secreto=password.generar()
@@ -127,7 +141,7 @@ acumular puntos. ¡Vamos a jugar!
         resultado = ""
         
         self.ronda += 1
-        # estado visible tipo ahorcado
+        # Estado visible tipo ahorcado
         progress = ["_"] * longitud
         
         print(f"\nPista inicial:")
@@ -149,9 +163,9 @@ acumular puntos. ¡Vamos a jugar!
                 
                 puntos_ganados = 50
                 self.puntaje += puntos_ganados
-                resultado = (f"Descifrada (+{puntos_ganados})")
+                resultado = f"✅ Descifrada (+{puntos_ganados})"
                 print("\n🎉 ¡Correcto!")
-                print("✅Has descifrado la contraseña")
+                print("✅ Has descifrado la contraseña")
                 print(f"\nGanaste {puntos_ganados} puntos.")
                 print(f"Puntaje actual: {self.puntaje}")
                 
@@ -182,32 +196,14 @@ acumular puntos. ¡Vamos a jugar!
         cofre = Cofre.abrir_maldito()
         self.puntaje += cofre.puntos
         resultado = f"❌ Falló ({cofre})"
-        print(f"Pntaje total: {self.puntaje}")
+        print(f"Puntaje total: {self.puntaje}")
         
         self.historial.append({
             "ronda": self.ronda,
             "modo":"Descifrar",
             "resultado": resultado,
             "puntaje": self.puntaje})
-       
                
-    def _generar_pistas(self, secreta, intento):
-        posiciones=[]
-
-        correctos=0
-
-        for i in range(len(secreta)):
-            if i < len(intento):
-                if intento[i]==secreta[i]:
-                    posiciones.append(intento[i])
-
-                    correctos +=1
-
-                else:
-                    posiciones.append("_")
-
-        return correctos, " ".join(posiciones)
-        
    
     def _generar_pistas(self, secreta, intento):
         posiciones=[]
@@ -250,19 +246,15 @@ acumular puntos. ¡Vamos a jugar!
             return 
         
         print("\n  HISTORIAL DE RONDAS\n")
-        print(f"  {'Ronda':<8} | {'Modo':<15} | {'Resultado de contraseña':<32} | {'Puntaje'}")
-        print("  " + "-" * 70)
+        print(f"  {'RONDA':<8} | {'MODO':<15} | {'RESULTADO ':<42}  | {'PUNTAJE'}")
+        print(" " + "-" * 84)
         
         for h in self.historial:
-            ronda = h.get("ronda","-")
-            modo = h.get("modo","Generar")
-            resultado = h.get("resultado","Sin resultado")
-            puntaje = h.get("Puntaje",0)
-            
-            print(f"  {h['ronda']:<8} | {h['modo']:<15} | {h['resultado']:<32} | {h['puntaje']}")
+                      
+            print(f"  {h['ronda']:<8} | {h['modo']:<15} | {h['resultado']:<42} | {h['puntaje']}")
  
  
- 
+    
     def _mostrar_resultado_final(self):
         """Muestra la pantalla de despedida con el puntaje final y una calificación."""
         self._separador()
@@ -271,7 +263,7 @@ acumular puntos. ¡Vamos a jugar!
         print(f"  Puntaje final  : {self.puntaje}")
  
         # Calificación según puntaje final
-        if self.puntaje >= 10:
+        if self.puntaje >= 100:
             print("\n  ¡Eres un MAESTRO Cazador de Contraseñas!")
         elif self.puntaje >= 50:
             print("\n  ¡Buen trabajo, Cazador!")
@@ -282,25 +274,18 @@ acumular puntos. ¡Vamos a jugar!
  
         print("\n  ¡Gracias por jugar! \n")
  
-    # ── Punto de entrada del juego ────────────────────────
- 
+    # Metodo principal que lanza el juego y controla el bucle central.
+    # Muestra el mensaje inicial del juego y el menú de opciones a elegir.    
     def iniciar(self):
-        """
-        Método principal que lanza el juego y controla el bucle central.
- 
-        Flujo:
-          - Muestra el banner y las instrucciones.
-          - Entra en un bucle que muestra el menú y procesa la opción elegida.
-          - Sale del bucle cuando el usuario elige la opción 3.
-          - Muestra el resultado final.
-        """
-        print(self.ANUNCIO)
-        print("  Bienvenido, Cazador. Las contraseñas son tu arma.")
-        print("  Genera contraseñas válidas para abrir cofres y ganar puntos.")
-        print("  ¡Cuidado! Los cofres malditos restan 20 puntos.\n")
- 
+        # Imprime en consola el mensaje inicial.
+        print(self.BANNER)
+        
+        # Se crea la variabel jugando con el valor de verdadero. 
         jugando = True
- 
+        
+        # Se crea aun ciclo while para que el usuario permanezca en el menú principal 
+        # mientras que la variable jugando sea igual a True, si se le asigna el valor de False
+        # sale del ciclo y se imprime el mensaje de despedida.
         while jugando:
             self._mostrar_menu()
             opcion = input("\n  Elige una opción (1/2/3/4): ").strip()
