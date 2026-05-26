@@ -23,7 +23,7 @@ class Password:
         self.longitud = longitud
         self.valor = valor
 
-    # Este metodo genera una contraseña alestoria valida segun las reglas establecidas
+    # Este metodo genera una contraseña aleatoria valida según las reglas establecidas.
     def generar(self):
         # Genera una letra mayuscula aleatoria.
         mayus = random.choice(string.ascii_uppercase)
@@ -43,11 +43,11 @@ class Password:
         # Conjunto de caracteres permitidos en una contraseña.
         resto = string.ascii_letters + string.digits + self.ESPECIALES
 
-        # Bucle que sigue agreegndo caracteres hasta alcanzar la longitud establecida.
+        # Bucle que sigue agregando caracteres hasta alcanzar la longitud establecida.
         while len(obligatorios)<self.longitud:
 
             caracter = random.choice(resto)
-            # verifica que el ccaracter no este repetido.
+            # verifica que el caracter no este repetido.
             if caracter not in obligatorios:
                 obligatorios.append(caracter)
                 
