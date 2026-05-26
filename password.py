@@ -1,8 +1,7 @@
 #----------------------------------------------------
 # ARCHIVO: password.py 
 # Define la clase Password, la cual permite generar contraseñas
-# aleatorias y validar que la contraseña cumpla todos los 
-# requisitos establecidos.
+# aleatorias y validar que la contraseña cumpla todos los requisitos establecidos.
 #----------------------------------------------------
 
 # Importaciones de modulos random (genera elementos aleatorios),

@@ -1,11 +1,11 @@
 #----------------------------------------------------
 # ARCHIVO: juego.py 
-# Este modulo controla el flujo del juego. 
+# Este módulo controla el flujo del juego. 
 # Administra los modos de juego, las rondas jugadas, asigna el puntaje del jugador, 
-# guarda el historial de rondas, y permite al usuario jugar tantas rondas como lo desee. 
+# guarda el historial de rondas y permite al usuario jugar tantas rondas como lo desee. 
 #----------------------------------------------------
 
-# importaciones de las clases y metodos de los archivos password.py, cofre.py 
+# Importaciones de las clases y metodos de los archivos password.py, cofre.py 
 # y las excepciones personalizadas del archivo exceptions.py.
 from password import Password
 from cofre import Cofre
@@ -45,7 +45,8 @@ cofres y acumular puntos. Si cometes un error perderas tus puntos.
          
      # Este metodo solicita al usuario la longitud de la contraseña.
     def _pedir_longitud(self) -> int:
-        # Variale que recibira la cantidad suministrada por el usuario.
+        
+        # Variable que recibirá la cantidad suministrada por el usuario.
         entrada = input("\n Ingresa la cantidad de caracteres de la contraseña (mínimo 8): ").strip()
         
         # Validar que sea un entero positivo.
@@ -53,7 +54,7 @@ cofres y acumular puntos. Si cometes un error perderas tus puntos.
             raise TipoDatoInvalidoError( f"'{entrada}' no es un número válido. "
                 "Debes ingresar un entero positivo.")
 
-        # Asigna el valor ssuministrado por el usuario a la variable longitud.
+        # Asigna el valor suministrado por el usuario a la variable longitud.
         longitud = int(entrada)
         
         # Validar longitud mínima de 8
@@ -61,8 +62,10 @@ cofres y acumular puntos. Si cometes un error perderas tus puntos.
             raise LongitudInvalidaError(f"La longitud mínima permitida es 8. Ingresaste: {longitud}.")
 
         return longitud
-    # Este metodo ejecuta el modo Generar contraseña
+    
+    # Este metodo ejecuta el modo de juego generar contraseña
     def _jugar_ronda(self):
+        
         # Se incrementa la ronda.
         self.ronda += 1
         self._separador() 
@@ -123,25 +126,25 @@ cofres y acumular puntos. Si cometes un error perderas tus puntos.
 
         print(f"\nPuntaje actual: {self.puntaje}")
         
-    # Este metodo se encarga del modo de juego Descifrar contraseña
+    # Este metodo se encarga del modo de juego descifrar contraseña.
     def _descifrar_password(self):
         
         self._separador()
         print("""\nDESCIFRAR CONTRASEÑA""")
+        
         # longitud de la contraseña estalecido. Este valor no cambia.
         longitud = 8
-        
-        
+               
         password = Password(longitud)
-
         pwd_secreto=password.generar()
-
-        intentos=7
         
+        # Cantidad de intentos permitidos por el sistema.
+        intentos=7
+        # Variable que guardará la contraseña generada por el usuario.
         resultado = ""
         
         self.ronda += 1
-        # Estado visible tipo ahorcado
+        # Estado visible tipo ahorcado.
         progress = ["_"] * longitud
         
         print(f"\nPista inicial:")
@@ -151,6 +154,8 @@ cofres y acumular puntos. Si cometes un error perderas tus puntos.
         print("✓ Tiene números")
         print("✓ Tiene caracteres especiales '¿¡?=)(/*+-%&$#!' ")
 
+        # Creamos un bucle while que nos permitirá validar la cantidad 
+        # de intentos permitidos para descifrar la contraseña.
         while intentos > 0:
             
             print(f"\nPista actual: ")
@@ -159,9 +164,12 @@ cofres y acumular puntos. Si cometes un error perderas tus puntos.
             print(f"\nIntentos restantes: {intentos}")
             intento=input("\nAdivina la contraseña: ")
 
+            # Se verifica si el intento ingresado por el usuario coincide 
+            # con la contraseña secreta generada por el sistema.
             if intento == pwd_secreto:
                 
                 puntos_ganados = 50
+                # Se suman los puntos obtenidos al puntaje total del jugador.
                 self.puntaje += puntos_ganados
                 resultado = f"✅ Descifrada (+{puntos_ganados})"
                 print("\n🎉 ¡Correcto!")
@@ -169,6 +177,7 @@ cofres y acumular puntos. Si cometes un error perderas tus puntos.
                 print(f"\nGanaste {puntos_ganados} puntos.")
                 print(f"Puntaje actual: {self.puntaje}")
                 
+                # Se guarda el resultado en el historial. 
                 self.historial.append({
                     "ronda" : self.ronda,
                     "modo" : "Descifrar",
@@ -177,14 +186,14 @@ cofres y acumular puntos. Si cometes un error perderas tus puntos.
                 
                 return
                         
-            # uscar caracteres existentes
+            # Buscar caracteres existentes
             for c in intento: 
                 if c in pwd_secreto:
                     posicion = pwd_secreto.index(c)
                     
                     progress[posicion] = c
                 
-
+            # Resta los intentos permitidos.
             intentos-=1
 
             print("\n❌ Incorrecto")
@@ -204,12 +213,15 @@ cofres y acumular puntos. Si cometes un error perderas tus puntos.
             "resultado": resultado,
             "puntaje": self.puntaje})
                
-   
+    # Este método genera pistas comparando el intento del jugador con la contraseña secreta.
     def _generar_pistas(self, secreta, intento):
+        
+        # Lista que almacenará las letras correctas 
         posiciones=[]
-
+        # Contador de caracteres acertados.
         correctos=0
-
+        
+        # Se recorre cada posición de la contraseña secreta.
         for i in range(len(secreta)):
             if i < len(intento):
                 if intento[i]==secreta[i]:
@@ -220,14 +232,11 @@ cofres y acumular puntos. Si cometes un error perderas tus puntos.
 
                 else:
                     posiciones.append("_")
-
+        # devuelve la cantidad de aciertos y la pista construida.
         return correctos, " ".join(posiciones)
-        
-        
-    # ── Menú y vistas secundarias ─────────────────────────
- 
+    
+    # Este método muestra las opciones del menú principal.
     def _mostrar_menu(self):
-        """Muestra las opciones del menú principal."""
        
         print("\n  │      MENÚ PRINCIPAL         │")
      
@@ -236,11 +245,11 @@ cofres y acumular puntos. Si cometes un error perderas tus puntos.
         print("  │  3. Ver historial           │")
         print("  │  4. Salir del juego         │")
      
- 
+    # El método ver_historial muestra el historial de todas las rondas jugadas
     def _ver_historial(self):
         """Muestra el historial completo de todas las rondas jugadas."""
         self._separador()
-        
+        # Se valida si el historial esta vacio 
         if not self.historial:
             print("\n  No hay rondas jugadas aún.")
             return 
@@ -254,9 +263,9 @@ cofres y acumular puntos. Si cometes un error perderas tus puntos.
             print(f"  {h['ronda']:<8} | {h['modo']:<15} | {h['resultado']:<42} | {h['puntaje']}")
  
  
-    
+    # Este método muestra por sonsola el mensaje de despedida con el puntaje final y 
     def _mostrar_resultado_final(self):
-        """Muestra la pantalla de despedida con el puntaje final y una calificación."""
+        
         self._separador()
         print("\n  FIN DEL JUEGO\n")
         print(f"  Rondas jugadas : {self.ronda}")
